@@ -15,35 +15,36 @@ function getComputerChoice() {
 }
 
 function getHumanChoice() {
-    let choice = prompt("Enter your choice (default = rock)", "rock").toLowerCase();
-    const arr = ["rock", "paper", "scissors"];
-    while (arr.indexOf(choice) < 0) {
-        choice = prompt("Enter a valid choice (rock, paper, scissors)", "rock");
-    }
-    return choice;
+    const newHumanDiv = document.createElement("div");
+    newHumanDiv.append(document.createElement("br"), newRock, newPaper, 
+        newSciss, document.createElement("br"));    
+
+    humanChoice.appendChild(newHumanDiv);
+    let choice = 'rock';
+
+    // if you add a listener, then be sure to either only do it once or delete 
+    // the node with it, else it causes multi-listening callbacks.
+    newHumanDiv.addEventListener('click', (event) => {
+        // console.log(event.target.id);
+        choice = `${event.target.id}`;
+        newHumanDiv.remove();
+        humanChoice.replaceChildren();
+        if (['rock', 'paper', 'scissors'].indexOf(choice) < 0) {
+            choice = 'rock';
+        }
+        playRound(choice);
+    });
 }
 
-function playRound() {
-
-    if (humanScore >= 1 || computerScore >= 1) {
-        nextRound.remove();
-        if (humanScore >= computerScore) {
-            finalResult.textContent = "PLAYER WON";
-        }
-        else {
-            finalResult.textContent = "COMPUTER WON";
-        } 
-        return;
-    }
-
-    let human = getHumanChoice();
+function playRound(choice) {
+    let human = choice;
     let computer = getComputerChoice();
 
     humanText.textContent = "Player's Choice: " + human;
     computerText.textContent = "Computer's Choice: " + computer;
 
     let result = "";
-
+    // console.log(`${humanScore} vs. ${computerScore}`);
     if (human === computer) {
         result = "Draw: No points given."
     }
@@ -88,7 +89,45 @@ function playRound() {
 }
 
 function playGame() {
-    nextRound.addEventListener("click", playRound);
+    const nextRound = document.createElement("button");
+    nextRound.textContent = "Next Round";
+    nextDiv.appendChild(nextRound);
+    nextRound.addEventListener("click", () => {
+        if (humanScore >= 5 || computerScore >= 5) {
+            nextRound.remove();
+            if (humanScore >= computerScore) {
+                finalResult.textContent = "PLAYER WON THE GAME";
+            }
+            else {
+                finalResult.textContent = "COMPUTER WON THE GAME";
+            }
+            const resetBtn = document.createElement("button");
+            resetBtn.textContent = "Reset";
+            finalResult.appendChild(document.createElement("br"));
+            finalResult.appendChild(resetBtn);
+            
+            resetBtn.addEventListener('click', () => {
+                humanScore = 0;
+                computerScore = 0;
+                finalResult.replaceChildren();
+
+                humanText.textContent = "Player's Choice:";
+                computerText.textContent = "Computer's Choice:";
+                humanScoreText.textContent = "PLAYER SCORE: " + humanScore;
+                computerScoreText.textContent = "CPU SCORE: " + computerScore;
+                resultText.textContent = "";
+                finalResult.textContent = "";
+                humanChoice.replaceChildren();
+
+                playGame();
+            });
+            return;
+        }
+        else {
+            resultText.textContent = "";
+            getHumanChoice();
+        }
+    });
 }
 
 let humanScore = 0;
@@ -100,9 +139,21 @@ const computerText = document.querySelector(".computer");
 const humanScoreText = document.querySelector(".pscore");
 const computerScoreText = document.querySelector(".cscore");
 const resultText = document.querySelector(".result");
-const nextRound = document.querySelector(".submitClass");
+const nextDiv = document.querySelector(".next");
 const finalResult = document.querySelector(".final");
+const humanChoice = document.querySelector(".humanChoice");
 
-// resultText.textContent = playRound();
+const newRock = document.createElement("button");
+const newPaper = document.createElement("button");
+const newSciss = document.createElement("button");
+
+newRock.textContent = "Rock";
+newPaper.textContent = "Paper";
+newSciss.textContent = "Scissors";
+
+newRock.id = "rock";
+newPaper.id = "paper";
+newSciss.id = "scissors";
+
 playGame();
 
